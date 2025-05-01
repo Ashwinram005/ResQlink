@@ -7,6 +7,7 @@ import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import EmergencyAlertsScreen from "./EmergencyAlertsScreen";
 import SafetyTipsScreen from "./SafetyTipsScreen";
 import ResourceCentersScreen from "./ResourceCentersScreen";
+import EmergencyContactsScreen from "./EmergencyContactsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -14,6 +15,7 @@ export default function HomeStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
+      <Stack.Screen name="EmergencyContacts" component={EmergencyContactsScreen} />
       <Stack.Screen name="EmergencyAlerts" component={EmergencyAlertsScreen} />
       <Stack.Screen name="SafetyTips" component={SafetyTipsScreen} />
       <Stack.Screen name="ResourceCenters" component={ResourceCentersScreen} />
@@ -26,9 +28,12 @@ function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.menuButton} onPress={() => navigation.navigate("EmergencyAlerts")}>
-        <Text style={styles.menuText}>Emergency Alerts</Text>
+    <TouchableOpacity style={styles.menuButton} onPress={() => navigation.navigate("EmergencyContacts")}>
+        <Text style={styles.menuText}>Emergency Contacts</Text>
       </TouchableOpacity>
+      {/* <TouchableOpacity style={styles.menuButton} onPress={() => navigation.navigate("EmergencyAlerts")}>
+        <Text style={styles.menuText}>Emergency Alerts</Text>
+      </TouchableOpacity> */}
       <TouchableOpacity style={styles.menuButton} onPress={() => navigation.navigate("SafetyTips")}>
         <Text style={styles.menuText}>Safety Tips</Text>
       </TouchableOpacity>

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { 
-  View, Text, Button, StyleSheet, FlatList, Image, Modal, TextInput, ScrollView 
+import React, { useState, useEffect } from 'react';
+import {
+  View, Text, Button, StyleSheet, FlatList, Image, Modal, TextInput, ScrollView, ActivityIndicator 
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 
@@ -14,11 +14,27 @@ const MissingPersonsScreen = ({ navigation }) => {
   const [photo, setPhoto] = useState(null);
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
-  const [reports, setReports] = useState([
-    { id: '1', name: 'John Doe', age: '25', lastSeen: 'New York', description: 'Wearing blue jacket', contact: '9876543210', status: 'Missing', imageUrl: 'https://via.placeholder.com/100', latitude: '40.7128', longitude: '-74.0060' },
-    { id: '2', name: 'Jane Smith', age: '30', lastSeen: 'Los Angeles', description: 'Wearing red hoodie', contact: '9876543222', status: 'Found', imageUrl: 'https://via.placeholder.com/100', latitude: '34.0522', longitude: '-118.2437' },
-  ]);
-  const [filteredReports, setFilteredReports] = useState(reports);
+  const [reports, setReports] = useState([]);
+  const [filteredReports, setFilteredReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch reports from backend API
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const response = await fetch('https://nbw14s66-5000.inc1.devtunnels.ms/api/missing-reports');
+        const data = await response.json();
+        setReports(data);
+        setFilteredReports(data);
+      } catch (error) {
+        console.error('Error fetching reports:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, []);
 
   const handleStatusChange = (newStatus) => {
     if (newStatus === 'All') {
@@ -63,22 +79,61 @@ const MissingPersonsScreen = ({ navigation }) => {
     }
   };
 
-  const handleReportSubmit = () => {
-    const newReport = { 
-      id: (reports.length + 1).toString(), 
-      name, 
-      age, 
-      lastSeen, 
-      description, 
-      contact, 
-      status: 'Missing', 
-      imageUrl: photo || 'https://via.placeholder.com/100', 
-      latitude, 
-      longitude 
-    };
-    setReports([...reports, newReport]);
-    setFilteredReports([...reports, newReport]);
-    setShowModal(false);
+  const handleReportSubmit = async () => {
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('age', age);
+    formData.append('lastSeen', lastSeen);
+    formData.append('location', lastSeen);
+    formData.append('latitude', latitude);
+    formData.append('longitude', longitude);
+    formData.append('contact', contact);
+  
+    if (photo) {
+      // Extract the filename from the URI
+      const filename = photo.split('/').pop();
+  
+      // Append the image with the correct filename
+      const photoData = {
+        uri: photo,
+        type: 'image/jpeg', // or the appropriate mime type for the image
+        name: filename, // Use only the filename here
+      };
+      formData.append('image', photoData);
+    }
+  
+    try {
+      const response = await fetch('https://nbw14s66-5000.inc1.devtunnels.ms/api/report-missing', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      const data = await response.json();
+  
+      if (data.message === "Report submitted successfully!") {
+        alert('Report submitted successfully');
+        const newReport = { 
+          id: (reports.length + 1).toString(), 
+          name, 
+          age, 
+          lastSeen, 
+          description, 
+          contact, 
+          status: 'Missing', 
+          imageUrl: photo || 'https://via.placeholder.com/100', 
+          latitude, 
+          longitude 
+        };
+        setReports([...reports, newReport]);
+        setFilteredReports([...reports, newReport]);
+        setShowModal(false);
+      } else {
+        // alert('Error submitting report');
+      }
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      // alert('An error occurred');
+    }
   };
 
   const openReportModal = () => {
@@ -99,14 +154,23 @@ const MissingPersonsScreen = ({ navigation }) => {
       <View style={styles.reportInfo}>
         <Text style={styles.reportName}>{item.name}</Text>
         <Text style={styles.reportDetails}>Age: {item.age}</Text>
+        <Text style={styles.reportDetails}>Location: {item.location}</Text>
         <Text style={styles.reportDetails}>Last Seen: {item.lastSeen}</Text>
         <Text style={styles.reportDetails}>Description: {item.description}</Text>
         <Text style={styles.reportDetails}>Contact: {item.contact}</Text>
-        <Text style={styles.reportDetails}>Latitude:{item.latitude}</Text>
-        <Text style={styles.reportDetails}>Longitude:{item.longitude}</Text>
+        <Text style={styles.reportDetails}>Latitude: {item.latitude}</Text>
+        <Text style={styles.reportDetails}>Longitude: {item.longitude}</Text>
       </View>
     </View>
   );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -184,5 +248,6 @@ const styles = StyleSheet.create({
   modalTitle: { fontSize: 24, fontWeight: '600', color: '#333', marginBottom: 30, textAlign: 'center' },
   inputField: { height: 45, borderColor: '#ddd', borderWidth: 1, borderRadius: 8, marginBottom: 15, paddingHorizontal: 10, fontSize: 16, color: '#333' },
   previewImage: { width: 100, height: 100, borderRadius: 10, alignSelf: 'center', marginVertical: 10 },
-  modalButtons: { marginTop: 20 ,marginBottom:20, flexDirection: 'column', justifyContent: 'space-between',gap:20 },
+  modalButtons: { marginTop: 20, marginBottom: 20, flexDirection: 'column', justifyContent: 'space-between', gap: 20 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 });
