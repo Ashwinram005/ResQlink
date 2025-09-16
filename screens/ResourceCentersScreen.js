@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, Scro
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import axios from 'axios';
 
-const GOOGLE_MAPS_API_KEY = 'AIzaSyCyZYuKJc4YREy3ppZxlnODX_HL7sJlAbk'; // Replace with your API Key
+const GOOGLE_MAPS_API_KEY = 'YOUR_API_KEY'; // Replace with your API Key
 const BACKEND_URL = 'https://nbw14s66-5000.inc1.devtunnels.ms'; // Replace with your backend API endpoint
 const markerImage = require('../assets/reliefcamp.jpg');
 
