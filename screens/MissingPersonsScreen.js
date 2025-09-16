@@ -53,7 +53,7 @@ const MissingPersonsScreen = ({ navigation }) => {
   };
 
   const fetchCoordinates = async (location) => {
-    const apiKey = 'AIzaSyCyZYuKJc4YREy3ppZxlnODX_HL7sJlAbk'; // Replace with your actual Google Maps API Key
+    const apiKey = 'YOUR_API_KEY'; // Replace with your actual Google Maps API Key
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${apiKey}`;
 
     try {
